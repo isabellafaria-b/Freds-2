@@ -1,4 +1,3 @@
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -45,6 +44,7 @@ public class Robot extends TimedRobot {
     ef.configNeutralDeadband(0.04);
   }
 
+  // metodos
   int angulo = fred.getPOV();
   public void POV() {
     switch (angulo) {
@@ -107,7 +107,8 @@ public class Robot extends TimedRobot {
    SmartDashboard.putNumber("Velocidade do motor direito ", velDir);
    SmartDashboard.putNumber("Velocidade do motor esquerdo ", velEsq);
    SmartDashboard.putNumber("Velocidade ", velBotao);
-}
+   SmartDashboard.putNumber("Joystick X value", fred.getX());
+  }
 
   // getter e setter
   public double getVelEsq() {
