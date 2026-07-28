@@ -1,14 +1,16 @@
+
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-// import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 public class Robot extends TimedRobot {
+
   private final VictorSPX dt = new VictorSPX(1);
   private final VictorSPX df = new VictorSPX(2);
   private final VictorSPX et = new VictorSPX(3);
@@ -17,15 +19,18 @@ public class Robot extends TimedRobot {
   double velEsq = 0;
   double velDir = 0;
   double velBotao = 0;
+  int angulo;
+
 
   // Joystick
-  Joystick fred = new Joystick(1);
+  Joystick fred = new Joystick(0);
 
   // botôes
-  boolean BotaoA = fred.getRawButton(1);
-  boolean BotaoB = fred.getRawButton(2);
-  boolean BotaoC = fred.getRawButton(3);
-  boolean BotaoD = fred.getRawButton(4);
+  boolean BotaoA;
+  boolean BotaoB;
+  boolean BotaoC;
+  boolean BotaoD;
+ 
 
   public Robot() {
     dt.setInverted(true);
@@ -44,91 +49,97 @@ public class Robot extends TimedRobot {
     ef.configNeutralDeadband(0.04);
   }
 
-  // metodos
-  int angulo = fred.getPOV();
-  public void POV() {
-    switch (angulo) {
-      case 0: 
-        this.setVelDir(velBotao * 1);
-        this.setVelEsq(velBotao * 1);
-       break;
-      case 45:
-        this.setVelDir(velBotao * 0.8);
-        this.setVelEsq(velBotao * 1);
-        break;
-      case 90:
-        this.setVelDir(velBotao * 0.2);
-        this.setVelEsq(velBotao * 0.9);
-        break;
-      case 135:
-        this.setVelDir(velBotao * 1);
-        this.setVelEsq(velBotao * 0.3);
-      case 180:
-        this.setVelDir(velBotao * -1);
-        this.setVelEsq(velBotao * -1);
-        break;
-      case 225:
-        this.setVelDir(velBotao * 0.3);
-        this.setVelEsq(velBotao * 1);
-        break;
-      case 270:
-        this.setVelDir(velBotao * 0.9);
-        this.setVelEsq(velBotao * 0.2);
-        break;
-      case 315:
-        this.setVelDir(velBotao * 1);
-        this.setVelEsq(velBotao * 0.8);
-        break;
-    }
-  }
-
   @Override
   public void teleopPeriodic() {
+    angulo = fred.getPOV();
 
-    if (BotaoA == true) {
+    BotaoA = fred.getRawButtonPressed(1);
+    BotaoB = fred.getRawButtonPressed(2);
+    BotaoC = fred.getRawButtonPressed(3);
+    BotaoD = fred.getRawButtonPressed(4);
+
+     if (BotaoA) {
       velBotao = 0.25;
-    } else if (BotaoB == true) {
+    } else if (BotaoB) {
       velBotao = 0.5;
-    } else if (BotaoC == true) {
+    } else if (BotaoC) {
       velBotao = 0.75;
-    } else if (BotaoD == true){
+    } else if (BotaoD){
       velBotao = 1;
-    } else {
-      velBotao = 0.2;
     }
+
+    int isabella = 0;
+    switch (isabella) {
+      case 'A': BotaoA = true; break;
+      case 'B': BotaoB = true; break;
+    }
+
+    execute();
+    POV();
   }
+
+  public void POV() {
+    switch (angulo) {
+      case -1:
+        velEsq = velBotao * 0;
+        velDir = velBotao * 0;
+      case 0: 
+       velEsq = velBotao * 1;
+       velDir = velBotao * 1;
+       break;
+      case 45:
+       velEsq = velBotao * 0.5;
+       velDir = velBotao * -0.5;
+        break;
+      case 90:
+       velEsq = velBotao * 1;
+       velDir = velBotao * 0;
+        break;
+      case 135:
+       velEsq = velBotao * 1;
+       velDir = velBotao * 0.3;
+      case 180:
+       velEsq = velBotao * -1;
+       velDir = velBotao * -1;
+        break;
+      case 225:
+       velEsq = velBotao * 0.3;
+       velDir = velBotao * 1;
+        break;
+      case 270:
+       velEsq = velBotao * 0;
+       velDir = velBotao * 1;
+        break;
+      case 315:
+       velEsq = velBotao * -0.5;
+       velDir = velBotao * 0.5;
+        break;
+    }
+
+    setVelDir(velDir);
+    setVelEsq(velEsq);
+  }
+
 
   // dashboard
   public void execute() {
-   SmartDashboard.putBoolean("Botao A ", BotaoA);
-   SmartDashboard.putBoolean("Botao B ", BotaoB);
-   SmartDashboard.putBoolean("Botao C ", BotaoC);
-   SmartDashboard.putBoolean("Botao D ", BotaoD);
-   SmartDashboard.putNumber("Velocidade do motor direito ", velDir);
-   SmartDashboard.putNumber("Velocidade do motor esquerdo ", velEsq);
-   SmartDashboard.putNumber("Velocidade ", velBotao);
-   SmartDashboard.putNumber("Joystick X value", fred.getX());
-  }
-
-  // getter e setter
-  public double getVelEsq() {
-    return velEsq;
-  }
-
+   SmartDashboard.putBoolean("Botao A", BotaoD);
+   SmartDashboard.putBoolean("Botao B", BotaoB);
+   SmartDashboard.putBoolean("Botao C", BotaoC);
+   SmartDashboard.putBoolean("Botao D", BotaoA);
+   SmartDashboard.putNumber("Velocidade do motor direito", velDir);
+   SmartDashboard.putNumber("Velocidade do motor esquerdo", velEsq);
+   SmartDashboard.putNumber("Velocidade botao", velBotao);
+   SmartDashboard.putNumber("POV", angulo);
+}
 
   public void setVelEsq(double velEsq) {
-    this.velEsq = velEsq;
+    ef.set(ControlMode.PercentOutput, velEsq);
+    et.set(ControlMode.PercentOutput, velEsq);
   }
-
-
-  public double getVelDir() {
-    return velDir;
-  }
-
 
   public void setVelDir(double velDir) {
-    this.velDir = velDir;
+    df.set(ControlMode.PercentOutput, velDir);
+    dt.set(ControlMode.PercentOutput, velDir);
   }
-
-  
 }
