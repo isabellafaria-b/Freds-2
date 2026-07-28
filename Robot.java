@@ -35,8 +35,6 @@ public class Robot extends TimedRobot {
   public Robot() {
     dt.setInverted(true);
     df.setInverted(true);
-    et.setInverted(false);
-    ef.setInverted(false);
 
     dt.setNeutralMode(NeutralMode.Brake);
     df.setNeutralMode(NeutralMode.Brake);
@@ -53,29 +51,33 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     angulo = fred.getPOV();
 
-    BotaoA = fred.getRawButtonPressed(1);
-    BotaoB = fred.getRawButtonPressed(2);
-    BotaoC = fred.getRawButtonPressed(3);
-    BotaoD = fred.getRawButtonPressed(4);
+    BotaoA = fred.getRawButton(1);
+    BotaoB = fred.getRawButton(2);
+    BotaoC = fred.getRawButton(3);
+    BotaoD = fred.getRawButton(4);
 
-     if (BotaoA) {
+    while (fred.getRawButtonPressed(1)) {
+      BotaoA = true;
       velBotao = 0.25;
-    } else if (BotaoB) {
-      velBotao = 0.5;
-    } else if (BotaoC) {
-      velBotao = 0.75;
-    } else if (BotaoD){
-      velBotao = 1;
     }
-
-    int isabella = 0;
-    switch (isabella) {
-      case 'A': BotaoA = true; break;
-      case 'B': BotaoB = true; break;
+    while (fred.getRawButtonPressed(2)) {
+      BotaoB = true;
+      velBotao = 0.5;
+    }
+    while (fred.getRawButtonPressed(3)) {
+      BotaoC = true;
+      velBotao = 0.75;
+    }
+    while (fred.getRawButtonPressed(4)) {
+      BotaoD = true;
+      velBotao = 1;
     }
 
     execute();
     POV();
+
+    setVelDir(velDir);
+    setVelEsq(velEsq);
   }
 
   public void POV() {
@@ -115,9 +117,6 @@ public class Robot extends TimedRobot {
        velDir = velBotao * 0.5;
         break;
     }
-
-    setVelDir(velDir);
-    setVelEsq(velEsq);
   }
 
 
@@ -133,6 +132,7 @@ public class Robot extends TimedRobot {
    SmartDashboard.putNumber("POV", angulo);
 }
 
+// setters
   public void setVelEsq(double velEsq) {
     ef.set(ControlMode.PercentOutput, velEsq);
     et.set(ControlMode.PercentOutput, velEsq);
