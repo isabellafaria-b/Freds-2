@@ -10,12 +10,12 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 public class Robot extends TimedRobot {
-
   private final VictorSPX dt = new VictorSPX(1);
   private final VictorSPX df = new VictorSPX(2);
   private final VictorSPX et = new VictorSPX(3);
   private final VictorSPX ef = new VictorSPX(4);
 
+  // variáveis
   double velEsq = 0;
   double velDir = 0;
   double velBotao = 0;
