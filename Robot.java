@@ -81,9 +81,11 @@ public class Robot extends TimedRobot {
     et.set(ControlMode.PercentOutput, trigelaD);
     dt.set(ControlMode.PercentOutput, trigelaE);
 
+    // chamando as funnções
     execute();
     POV();
 
+    // setters
     setVelDir(velDir);
     setVelEsq(velEsq);
   }
