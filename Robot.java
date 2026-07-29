@@ -30,11 +30,16 @@ public class Robot extends TimedRobot {
   boolean BotaoB;
   boolean BotaoC;
   boolean BotaoD;
+  double trigelaD;
+  double trigelaE;
  
 
   public Robot() {
     dt.setInverted(true);
     df.setInverted(true);
+
+    dt.follow(df);
+    et.follow(ef);
 
     dt.setNeutralMode(NeutralMode.Brake);
     df.setNeutralMode(NeutralMode.Brake);
@@ -56,22 +61,25 @@ public class Robot extends TimedRobot {
     BotaoC = fred.getRawButton(3);
     BotaoD = fred.getRawButton(4);
 
-    while (fred.getRawButtonPressed(1)) {
-      BotaoA = true;
+    if (BotaoA) {
       velBotao = 0.25;
-    }
-    while (fred.getRawButtonPressed(2)) {
-      BotaoB = true;
+    } else if(BotaoB) {
       velBotao = 0.5;
-    }
-    while (fred.getRawButtonPressed(3)) {
-      BotaoC = true;
+    } else if (BotaoC) {
       velBotao = 0.75;
-    }
-    while (fred.getRawButtonPressed(4)) {
-      BotaoD = true;
+    } else if (BotaoD) {
       velBotao = 1;
     }
+
+    // triggers
+    trigelaD = fred.getRawAxis(2);
+    trigelaE = fred.getRawAxis(3);
+    trigelaE *= -1;
+
+    et.set(ControlMode.PercentOutput, trigelaD);
+    dt.set(ControlMode.PercentOutput, trigelaE);
+    et.set(ControlMode.PercentOutput, trigelaD);
+    dt.set(ControlMode.PercentOutput, trigelaE);
 
     execute();
     POV();
@@ -130,6 +138,8 @@ public class Robot extends TimedRobot {
    SmartDashboard.putNumber("Velocidade do motor esquerdo", velEsq);
    SmartDashboard.putNumber("Velocidade botao", velBotao);
    SmartDashboard.putNumber("POV", angulo);
+   SmartDashboard.putNumber("Trigger Direita", trigelaD);
+   SmartDashboard.putNumber("Trigger Esquerda", trigelaE);
 }
 
 // setters
@@ -142,4 +152,5 @@ public class Robot extends TimedRobot {
     df.set(ControlMode.PercentOutput, velDir);
     dt.set(ControlMode.PercentOutput, velDir);
   }
+
 }
