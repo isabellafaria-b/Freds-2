@@ -18,9 +18,9 @@ public class Robot extends TimedRobot {
   // variáveis
   double velEsq = 0;
   double velDir = 0;
-  double velBotao = 0;
+  double velBotao = 0;  
   int angulo;
-
+  public static final double deadzone = 0.04;
 
   // Joystick
   Joystick fred = new Joystick(0);
@@ -32,7 +32,17 @@ public class Robot extends TimedRobot {
   boolean BotaoD;
   double trigelaD;
   double trigelaE;
- 
+
+  // analogicos
+  double x1;
+  double x2;
+  double y1;
+  double y2;
+  
+  private static final double xMin = 0;
+  private static final double xMax = 1023;
+  private static final double yMin = -1;
+  private static final double yMax = 1;
 
   public Robot() {
     dt.setInverted(true);
@@ -71,23 +81,58 @@ public class Robot extends TimedRobot {
       velBotao = 1;
     }
 
+    // analogicos
+    x1 = fred.getRawAxis(0);
+    x2 = fred.getRawAxis(1);
+    y1 = fred.getRawAxis(4);
+    y2 = fred.getRawAxis(5);
+    
     // triggers
     trigelaD = fred.getRawAxis(2);
     trigelaE = fred.getRawAxis(3);
     trigelaE *= -1;
 
-    et.set(ControlMode.PercentOutput, trigelaD);
-    dt.set(ControlMode.PercentOutput, trigelaE);
-    et.set(ControlMode.PercentOutput, trigelaD);
-    dt.set(ControlMode.PercentOutput, trigelaE);
-
-    // chamando as funnções
+    // chamando as funções
     execute();
+    triggers();
     POV();
+    if (fred.getPOV() == -1) {
+      triggers();
+    } else if (trigelaE == 0 && trigelaD == 0) {
+      POV();
+    }
 
     // setters
     setVelDir(velDir);
     setVelEsq(velEsq);
+  }
+
+  public void triggers() {
+    if (fred.getRawAxis(2) > deadzone) {
+      velDir = trigelaE;
+      velEsq = trigelaE;
+    } else if (fred.getRawAxis(3) > -deadzone) {
+      velDir = trigelaD;
+      velEsq = trigelaD;
+    } else {
+      velDir = 0;
+      velEsq = 0;
+    }
+  }
+
+  public static double funcaoAfim(double x) {
+    double a = (yMax - yMin) / (xMax - xMin);
+    double b = yMin - (a * xMin);
+    double f = (a * x) + b;
+
+    return addDeadzone(f);
+  }
+
+  public static double addDeadzone(double valorCalc) {
+    if (Math.abs(valorCalc) < deadzone) {
+      return 0.0;
+    }
+    return deadzone;
   }
 
   public void POV() {
@@ -129,17 +174,16 @@ public class Robot extends TimedRobot {
     }
   }
 
-
   // dashboard
   public void execute() {
    SmartDashboard.putBoolean("Botao A", BotaoD);
    SmartDashboard.putBoolean("Botao B", BotaoB);
    SmartDashboard.putBoolean("Botao C", BotaoC);
    SmartDashboard.putBoolean("Botao D", BotaoA);
+   SmartDashboard.putNumber("POV", angulo);
+   SmartDashboard.putNumber("Velocidade botao", velBotao);
    SmartDashboard.putNumber("Velocidade do motor direito", velDir);
    SmartDashboard.putNumber("Velocidade do motor esquerdo", velEsq);
-   SmartDashboard.putNumber("Velocidade botao", velBotao);
-   SmartDashboard.putNumber("POV", angulo);
    SmartDashboard.putNumber("Trigger Direita", trigelaD);
    SmartDashboard.putNumber("Trigger Esquerda", trigelaE);
 }
@@ -154,5 +198,4 @@ public class Robot extends TimedRobot {
     df.set(ControlMode.PercentOutput, velDir);
     dt.set(ControlMode.PercentOutput, velDir);
   }
-
 }
