@@ -38,11 +38,8 @@ public class Robot extends TimedRobot {
   double x2;
   double y1;
   double y2;
-  
-  private static final double xMin = 0;
-  private static final double xMax = 1023;
-  private static final double yMin = -1;
-  private static final double yMax = 1;
+  double hipotenusa;
+  double a;
 
   public Robot() {
     dt.setInverted(true);
@@ -83,8 +80,8 @@ public class Robot extends TimedRobot {
 
     // analogicos
     x1 = fred.getRawAxis(0);
-    x2 = fred.getRawAxis(1);
-    y1 = fred.getRawAxis(4);
+    y1 = fred.getRawAxis(1);
+    x2 = -fred.getRawAxis(4);
     y2 = fred.getRawAxis(5);
     
     // triggers
@@ -120,19 +117,44 @@ public class Robot extends TimedRobot {
     }
   }
 
-  public static double funcaoAfim(double x) {
-    double a = (yMax - yMin) / (xMax - xMin);
-    double b = yMin - (a * xMin);
-    double f = (a * x) + b;
-
-    return addDeadzone(f);
+  public void calculos(){
+    hipotenusa = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));
+    a = hipotenusa * 0.25;
   }
 
-  public static double addDeadzone(double valorCalc) {
-    if (Math.abs(valorCalc) < deadzone) {
-      return 0.0;
+  public void analEsq() {
+    if (hipotenusa > 1) {
+      hipotenusa = 1;
     }
-    return deadzone;
+
+    if (x1 > deadzone && y1 > deadzone) { // eixo I
+      velEsq = hipotenusa;
+      velDir = hipotenusa - a;
+    } else if (x1 < -deadzone && y1 > deadzone) { // eixo II
+      velEsq = hipotenusa - a;
+      velDir = hipotenusa;
+    } else if (x1 < -deadzone && y1 < -deadzone) { // eixo III
+      velEsq = hipotenusa + a;
+      velDir = hipotenusa;
+    } else if (x1 > deadzone && y1 < -deadzone) { // eixo IV
+      velEsq = hipotenusa;
+      velDir = hipotenusa + a;
+
+
+    if (x1 < deadzone && y1 > deadzone) {
+      velEsq = hipotenusa;
+      velDir = hipotenusa;
+    } else if (x1 > deadzone && y1 < deadzone) {
+      velEsq = hipotenusa;
+      velDir = 0;
+    } else if (x1 < deadzone && y1 > -deadzone) {
+      velEsq = -hipotenusa;
+      velDir = -hipotenusa;
+    } else if (x1 > -deadzone && y1 < deadzone) {
+      velEsq = 0;
+      velDir = hipotenusa;
+    }
+    }
   }
 
   public void POV() {
