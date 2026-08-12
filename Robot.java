@@ -92,7 +92,7 @@ public class Robot extends TimedRobot {
     analEsq();
   }
 
-  public void driver() {
+  public void drive() {
     // setters
     setVelDir(velDir);
     setVelEsq(velEsq);
@@ -112,7 +112,7 @@ public class Robot extends TimedRobot {
   }
 
   public void calculosEsq(){
-    //hipotenusa = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));
+    hipotenusa = Math.hypot(x1, y1);
     //sen = Math.sin(y1);
     sen = y1 / hipotenusa;
 
@@ -121,40 +121,35 @@ public class Robot extends TimedRobot {
     }
   }
 
-  public void analEsq() {
+
+  public double analEsq() {
     // movimentos diagonais
     if (x1 > deadzone && y1 > deadzone) { // eixo I
       velEsq = hipotenusa;
       velDir = sen;
     } else if (x1 < -deadzone && y1 > deadzone) { // eixo II
-      velEsq = -hipotenusa - sen;
+      velEsq = -sen;
       velDir = hipotenusa;
     } else if (x1 < -deadzone && y1 < -deadzone) { // eixo III
       velEsq = sen;
       velDir = -hipotenusa;
     } else if (x1 > deadzone && y1 < -deadzone) { // eixo IV
-      velEsq = hipotenusa;
-      velDir = -hipotenusa + sen;
+      velEsq = -hipotenusa;
+      velDir = sen;
     }
-
 
     // movimentos verticais/horizontais
-    if (x1 < deadzone && y1 > deadzone) {
-      velEsq = hipotenusa;
-      velDir = hipotenusa;
-    } else if (x1 > deadzone && y1 < deadzone) {
-      velEsq = hipotenusa;
-      velDir = 0;
-    } else if (x1 < -deadzone && y1 > -deadzone) {
-      velEsq = 0;
-      velDir = hipotenusa;
-    } else if (x1 > -deadzone && y1 < -deadzone) {
-      velEsq = -hipotenusa;
-      velDir = -hipotenusa;
+    if(velEsq > 0.99 && velDir > 0.99) {
+      velEsq = 1;
+      velDir = 1;
+    } else if(velEsq < -0.99 && velDir < -0.99) {
+      velEsq = -1;
+      velDir = -1;
     }
+
+    return Math.max(-1, Math.min(1, sen));
   }
   
-
   public void POV() {
     switch (angulo) {
       case -1:
@@ -200,10 +195,10 @@ public class Robot extends TimedRobot {
    SmartDashboard.putBoolean("Botao B", BotaoB);
    SmartDashboard.putBoolean("Botao C", BotaoC);
    SmartDashboard.putBoolean("Botao D", BotaoA);
-   SmartDashboard.putNumber("POV", angulo);
    SmartDashboard.putNumber("Velocidade botao", velBotao);
    SmartDashboard.putNumber("Velocidade do motor direito", velDir);
    SmartDashboard.putNumber("Velocidade do motor esquerdo", velEsq);
+   SmartDashboard.putNumber("POV", angulo);
    SmartDashboard.putNumber("Trigger Direita", trigelaD);
    SmartDashboard.putNumber("Trigger Esquerda", trigelaE);
 }
