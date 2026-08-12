@@ -20,7 +20,7 @@ public class Robot extends TimedRobot {
   double velDir = 0;
   double velBotao = 0;  
   int angulo;
-  public static final double deadzone = 0.04;
+  static final double deadzone = 0.043315;
 
   // Joystick
   Joystick fred = new Joystick(0);
@@ -50,10 +50,10 @@ public class Robot extends TimedRobot {
     et.setNeutralMode(NeutralMode.Brake);
     ef.setNeutralMode(NeutralMode.Brake);
 
-    dt.configNeutralDeadband(0.04);
-    df.configNeutralDeadband(0.04);
-    et.configNeutralDeadband(0.04);
-    ef.configNeutralDeadband(0.04);
+    dt.configNeutralDeadband(0.043315);
+    df.configNeutralDeadband(0.043315);
+    et.configNeutralDeadband(0.043315);
+    ef.configNeutralDeadband(0.043315);
   }
 
   @Override
@@ -88,11 +88,11 @@ public class Robot extends TimedRobot {
 
     // chamando as funções
     execute();
-    POV();
-    triggers();
     calculosEsq();
     analEsq();
+  }
 
+  public void driver() {
     // setters
     setVelDir(velDir);
     setVelEsq(velEsq);
@@ -112,41 +112,45 @@ public class Robot extends TimedRobot {
   }
 
   public void calculosEsq(){
-    hipotenusa = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));
+    //hipotenusa = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));
     //sen = Math.sin(y1);
     sen = y1 / hipotenusa;
+
     if(hipotenusa > 1) {
       hipotenusa = 1;
     }
   }
 
   public void analEsq() {
+    // movimentos diagonais
     if (x1 > deadzone && y1 > deadzone) { // eixo I
       velEsq = hipotenusa;
-      velDir = hipotenusa - sen;
+      velDir = sen;
     } else if (x1 < -deadzone && y1 > deadzone) { // eixo II
-      velEsq = -hipotenusa + sen;
-      velDir = hipotenusa;  
+      velEsq = -hipotenusa - sen;
+      velDir = hipotenusa;
     } else if (x1 < -deadzone && y1 < -deadzone) { // eixo III
-      velEsq = -hipotenusa + sen;
+      velEsq = sen;
       velDir = -hipotenusa;
     } else if (x1 > deadzone && y1 < -deadzone) { // eixo IV
       velEsq = hipotenusa;
-      velDir = -hipotenusa - sen;
+      velDir = -hipotenusa + sen;
     }
 
+
+    // movimentos verticais/horizontais
     if (x1 < deadzone && y1 > deadzone) {
       velEsq = hipotenusa;
       velDir = hipotenusa;
     } else if (x1 > deadzone && y1 < deadzone) {
       velEsq = hipotenusa;
-      velDir = sen;
+      velDir = 0;
     } else if (x1 < -deadzone && y1 > -deadzone) {
+      velEsq = 0;
+      velDir = hipotenusa;
+    } else if (x1 > -deadzone && y1 < -deadzone) {
       velEsq = -hipotenusa;
       velDir = -hipotenusa;
-    } else if (x1 > -deadzone && y1 < -deadzone) {
-      velEsq = sen;
-      velDir = hipotenusa;
     }
   }
   
