@@ -1,4 +1,3 @@
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -10,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 public class Robot extends TimedRobot {
+
   private final VictorSPX dt = new VictorSPX(1);
   private final VictorSPX df = new VictorSPX(2);
   private final VictorSPX et = new VictorSPX(3);
@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
   // analogicos
   double x1; double y1;
   double x2; double y2;
-  double hipotenusa; double sen;
+  double hipotenusa; double sen; double hipotenusa1; double sen1;
 
   public Robot() {
     dt.setInverted(true);
@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     x1 = fred.getRawAxis(0);
     y1 = -fred.getRawAxis(1);
     x2 = fred.getRawAxis(4);
-    y2 = fred.getRawAxis(5);
+    y2 = -fred.getRawAxis(5);
     
     // triggers
     trigelaD = fred.getRawAxis(2);
@@ -87,9 +87,22 @@ public class Robot extends TimedRobot {
     trigelaE *= -1;
 
     // chamando as funções
-    execute();
     calculosEsq();
-    analEsq();
+    calculosDir();
+
+    if(hipotenusa > deadzone){
+     analEsq();
+    } else if (hipotenusa1 > deadzone){
+      analDir();
+    } else if(trigelaD > deadzone || trigelaE < -deadzone){
+      triggers();
+    } else if (fred.getPOV() != -1) {
+      POV();
+    }else {
+      velEsq = 0; velDir = 0;
+    }
+
+    execute();
   }
 
   public void drive() {
@@ -102,27 +115,32 @@ public class Robot extends TimedRobot {
     if (fred.getRawAxis(2) > deadzone) {
       velDir = trigelaE;
       velEsq = trigelaE;
-    } else if (fred.getRawAxis(3) > -deadzone) {
+    } else if (fred.getRawAxis(3) < -deadzone) {
       velDir = trigelaD;
       velEsq = trigelaD;
     } else {
-      velDir = 0;
-      velEsq = 0;
+      velEsq = 0; velDir = 0;
     }
   }
 
+  // analogicos/calculos
   public void calculosEsq(){
     hipotenusa = Math.hypot(x1, y1);
-    //sen = Math.sin(y1);
-    sen = y1 / hipotenusa;
-
     if(hipotenusa > 1) {
       hipotenusa = 1;
     }
+    sen = y1 / hipotenusa;
   }
 
+  public void calculosDir(){
+    hipotenusa1 = Math.hypot(x2, y2);
+    if(hipotenusa1 > 1) {
+      hipotenusa1 = 1;
+    }
+    sen1 = y2 / hipotenusa1;
+  }
 
-  public double analEsq() {
+  public void analEsq() {
     // movimentos diagonais
     if (x1 > deadzone && y1 > deadzone) { // eixo I
       velEsq = hipotenusa;
@@ -146,8 +164,32 @@ public class Robot extends TimedRobot {
       velEsq = -1;
       velDir = -1;
     }
+  }
 
-    return Math.max(-1, Math.min(1, sen));
+  public void analDir() {
+    // movimentos diagonais
+    if (x2 > deadzone && y2 > deadzone) { // eixo I
+      velEsq = hipotenusa1;
+      velDir = sen1;
+    } else if (x2 < -deadzone && y2 > deadzone) { // eixo II
+      velEsq = -sen1;
+      velDir = hipotenusa1;
+    } else if (x2 < -deadzone && y2 < -deadzone) { // eixo III
+      velEsq = sen1;
+      velDir = -hipotenusa1;
+    } else if (x2 > deadzone && y2 < -deadzone) { // eixo IV
+      velEsq = hipotenusa1;
+      velDir = sen1;
+    }
+
+    // movimentos verticais/horizontais
+    if(velEsq > 0.99 && velDir > 0.99) {
+      velEsq = 1;
+      velDir = 1;
+    } else if(velEsq < -0.99 && velDir < -0.99) {
+      velEsq = -1;
+      velDir = -1;
+    }
   }
   
   public void POV() {
