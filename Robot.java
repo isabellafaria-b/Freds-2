@@ -1,7 +1,9 @@
+
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -21,6 +23,7 @@ public class Robot extends TimedRobot {
   double velBotao = 0;  
   int angulo;
   static final double deadzone = 0.043315;
+  Timer isabella = new Timer();
 
   // Joystick
   Joystick fred = new Joystick(0);
@@ -103,9 +106,7 @@ public class Robot extends TimedRobot {
     }
 
     execute();
-  }
 
-  public void drive() {
     // setters
     setVelDir(velDir);
     setVelEsq(velEsq);
@@ -152,7 +153,7 @@ public class Robot extends TimedRobot {
       velEsq = sen;
       velDir = -hipotenusa;
     } else if (x1 > deadzone && y1 < -deadzone) { // eixo IV
-      velEsq = -hipotenusa;
+      velEsq = hipotenusa;
       velDir = sen;
     }
 
@@ -164,6 +165,8 @@ public class Robot extends TimedRobot {
       velEsq = -1;
       velDir = -1;
     }
+
+    Math.max(-1, Math.min(1, sen));
   }
 
   public void analDir() {
@@ -190,6 +193,8 @@ public class Robot extends TimedRobot {
       velEsq = -1;
       velDir = -1;
     }
+
+    Math.max(-1, Math.min(1, sen));
   }
   
   public void POV() {
@@ -244,6 +249,23 @@ public class Robot extends TimedRobot {
    SmartDashboard.putNumber("Trigger Direita", trigelaD);
    SmartDashboard.putNumber("Trigger Esquerda", trigelaE);
 }
+
+// autonomous
+@Override
+public void autonomousInit(){
+  isabella.reset();
+}
+@Override
+public void autonomousPeriodic(){
+  if(isabella.get() > 2) {
+    isabella.start();
+    velEsq = 1; velDir = 1;
+  } else {
+    velEsq = 0; velDir = 0;
+  }
+
+  execute();
+ }
 
 // setters
   public void setVelEsq(double velEsq) {
